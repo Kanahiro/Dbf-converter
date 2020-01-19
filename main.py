@@ -1,16 +1,11 @@
-CODECS = ['cp932','shift_jis','utf-8','shift_jis','euc_jp','cp932',
-          'euc_jis_2004','euc_jisx0213',
-          'iso2022_jp','iso2022_jp_1','iso2022_jp_2','iso2022_jp_2004','iso2022_jp_3','iso2022_jp_ext',
-          'shift_jis_2004','shift_jisx0213',
-          'utf_16','utf_16_be','utf_16_le','utf_7','utf_8_sig']
-
 import os, sys, csv, shapefile, io
+from constants import Constants as CONSTANTS
 
 def convert_dbf_to_list(dbffile):
 	records = []
 
 	#Able to read Any type of encoding
-	for codec in CODECS:
+	for codec in CONSTANTS.CODECS:
 		try:
 			reader = shapefile.Reader(dbf=io.BytesIO(dbffile),encoding=codec)
 
@@ -33,21 +28,27 @@ def convert_dbf_to_list(dbffile):
 	return records
 
 if __name__ == '__main__':
-	files = sys.argv
-	dbf_datas = []
-	for i in range(len(files)):
-		if i == 0:
-			continue
+	#when argv include no files
+	if len(sys.argv) == 1:
+		print("No files are included in your argument.")
 
-		#read dbf as binary
-		dbf_file = open(files[i], "rb")
-		dbf = dbf_file.read()
-		dbf_file.close()
-		filename = os.path.basename(files[i])
+	else:
+		files = sys.argv[1:]
 
-		#write .csv in same directory with .dbf
-		with open(filename[:-4] + '.csv','w') as f:
-			csv_writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_ALL, lineterminator="\n")
-			records = convert_dbf_to_list(dbf)
-			for record in records:
-				csv_writer.writerow(record)
+		for fl in files:
+			#read dbf as binary
+			dbf_file = open(fl, "rb")
+			dbf = dbf_file.read()
+			dbf_file.close()
+			filename = os.path.basename(fl)
+
+			#write .csv in same directory with .dbf
+			with open(filename[:-4] + '.csv','w') as f:
+				csv_writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_ALL, lineterminator="\n")
+				records = convert_dbf_to_list(dbf)
+				for record in records:
+					csv_writer.writerow(record)
+
+			print(filename[:-4] + '.csv was wroted.')
+
+		print("All files were wroted.")
