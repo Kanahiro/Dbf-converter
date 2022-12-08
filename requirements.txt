@@ -1,2 +1,2 @@
-certifi==2018.8.24
+certifi==2022.12.7
 pyshp==2.1.0
